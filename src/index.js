@@ -1,31 +1,42 @@
 import { Notify } from "../node_modules/notiflix/build/notiflix-notify-aio";
 import axios from "axios";
 
-const BASE_URL = 'https://pixabay.com/api/';
-const KEY = '34609745-6210b6673efcd8b597eeb5954';
 const ref = {
     form: document.querySelector('.search-form'),
     gallery: document.querySelector('.gallery'),
+    btnLoadMore: document.querySelector('.load-more'),
+};
+let searchQuery = '';
+let numberPage = 1;
+
+ref.form.addEventListener('submit', onSearch);
+ref.btnLoadMore.addEventListener('click', onLoadMore);
+
+async function fetchFoto (query, number) {
+    const BASE_URL = 'https://pixabay.com/api/';
+    const params = new URLSearchParams({
+        key: '34609745-6210b6673efcd8b597eeb5954',
+        q: query,
+        image_type: 'photo',
+        orientation: 'horizontal',
+        safesearch: true,
+        per_page: 40,
+        page: number,
+    });
+    return await axios.get(`${BASE_URL}/?${params}`);
 };
 
-ref.form.addEventListener('submit', onChooseFoto);
-
-async function fetchFoto (q) {
-    return await axios.get(`${BASE_URL}/?key=${KEY}&q=${q}&image_type=photo&orientation=horizontal&safesearch=true`);
-};
-
-async function onChooseFoto (event) {
+async function onSearch (event) {
     event.preventDefault();
     ref.gallery.innerHTML = '';
-
-    const searchQuery = event.currentTarget.elements.searchQuery.value.trim(); 
-    console.log(searchQuery);
+    searchQuery = event.currentTarget.elements.searchQuery.value.trim(); 
+    
     if (!searchQuery) {
         Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
         return;
     }
     try {
-        const {data} = await fetchFoto (searchQuery); console.log(data);
+        const {data} = await fetchFoto (searchQuery, 1); console.log(data);
         if (data.hits.length === 0) {
         Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
         return;   
@@ -76,4 +87,21 @@ function renderMarcup (images) {
         `;
         return ref.gallery.insertAdjacentHTML('beforeend', marcup);
     });
+};
+
+async function onLoadMore (event) {
+    numberPage += 1; 
+
+    try {
+        const {data} = await fetchFoto (searchQuery, numberPage); console.log(data);
+        if (data.hits.length === 0) {
+        Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
+        return;   
+        }
+        renderMarcup (data.hits);
+    } 
+    catch (error) {
+        Notiflix.Notify.failure("ERROR Sorry, there are no images matching your search query. Please try again.");
+        console.log(error.message);        
+    }    
 };
