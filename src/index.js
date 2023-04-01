@@ -1,6 +1,8 @@
 import'./css/styles.css';
 import { Notify } from "../node_modules/notiflix/build/notiflix-notify-aio";
 import axios from "axios";
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
 
 const ref = {
     form: document.querySelector('.search-form'),
@@ -10,6 +12,7 @@ const ref = {
 let searchQuery = '';
 let numberPage = 1;
 const perPage = 40;
+const gallery = new SimpleLightbox('.gallery a');
 
 ref.form.addEventListener('submit', onSearch);
 ref.btnLoadMore.addEventListener('click', onLoadMore);
@@ -30,6 +33,7 @@ async function fetchFoto (query, number) {
 
 async function onSearch (event) {
     event.preventDefault();
+    ref.btnLoadMore.style.display = 'none';
     ref.gallery.innerHTML = '';
     searchQuery = event.currentTarget.elements.searchQuery.value.trim(); 
     
@@ -43,8 +47,10 @@ async function onSearch (event) {
         Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
         return;   
         }
+        Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
         renderMarcup (data.hits);
         ref.btnLoadMore.style.display = 'block';
+        gallery.refresh();
     } 
     catch (error) {
         Notiflix.Notify.failure("ERROR Sorry, there are no images matching your search query. Please try again.");
@@ -92,28 +98,6 @@ function renderMarcup (images) {
     });
 };
 
-// async function onLoadMore (event) {
-//     numberPage += 1; 
-
-//     try {
-//         const {data} = await fetchFoto (searchQuery, numberPage); console.log(data);
-//         // if (data.hits.length === 0) {
-//         //     Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.");
-//         //     return;   
-//         // }
-//         if (numberPage * perPage <= data.totalHits || data.hits.length !== 0) {
-//             renderMarcup (data.hits);
-//             ref.btnLoadMore.style.display = 'block'; return;   
-//         }
-//             ref.btnLoadMore.style.display = 'none';
-//             Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
-//     } 
-//     catch (error) {
-//         Notiflix.Notify.failure("ERROR Sorry, there are no images matching your search query. Please try again.");
-//         console.log(error.message);        
-//     }    
-// };
-
 async function onLoadMore (event) {
     numberPage += 1; 
 
@@ -126,7 +110,8 @@ async function onLoadMore (event) {
             return;   
         }
             renderMarcup (data.hits);
-            ref.btnLoadMore.style.display = 'block';   
+            ref.btnLoadMore.style.display = 'block'; 
+            gallery.refresh();  
     } 
     catch (error) {
         Notiflix.Notify.failure("ERROR Sorry, there are no images matching your search query. Please try again.");
