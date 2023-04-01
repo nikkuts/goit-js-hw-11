@@ -8,21 +8,23 @@
     
   </head>
   <body>
-    <!-- ❗️❗️❗️ Add partials like so for every page -->
-    <!-- <include src="./partials/example.html"></include> -->
-    <form class="search-form" id="search-form">
-      <input
-        type="text"
-        name="searchQuery"
-        autocomplete="off"
-        placeholder="Search images..."
-      />
-      <button type="submit">Search</button>
-    </form>
-    <div class="gallery">
-      <!-- Картки зображень -->
+    <div class="container">
+      <div class="header">
+        <form class="search-form" id="search-form">
+          <input
+            type="text"
+            name="searchQuery"
+            autocomplete="off"
+            placeholder="Search images..."
+          />
+          <button type="submit">Search</button>
+        </form>
+      </div>
+      <div class="gallery">
+        <!-- Картки зображень -->
+      </div>
+      <button type="button" class="load-more">Load more</button>
     </div>
-    <button type="button" class="load-more">Load more</button>
     <script src="../node_modules/notiflix/dist/notiflix-aio-3.2.6.min.js"></script>
     <script src="index.js" type="module"></script>
   </body>
